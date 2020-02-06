@@ -91,4 +91,88 @@ final class RuleTest extends TestCase
         $this->assertEmpty($rule->getError());
         $this->assertTrue($rule->isTrue());
     }
+
+    /** @test */
+    public function endWith(): void
+    {
+        $ruleStr = 'foo.bar.endsWith("foo") === true';
+        $map = [
+            'foo.bar' => 'something ends with foo',
+        ];
+        $rule = new Rule\Rule($ruleStr,  [], function (string $name) use ($map) {
+            return $map[$name];
+        });
+        $this->assertTrue($rule->isTrue());
+    }
+
+    /** @test */
+    public function startWith(): void
+    {
+        $ruleStr = 'foo.bar.startsWith("foo") === true';
+        $map = [
+            'foo.bar' => 'foo at the start',
+        ];
+        $rule = new Rule\Rule($ruleStr,  [], function (string $name) use ($map) {
+            return $map[$name];
+        });
+        $this->assertTrue($rule->isTrue());
+    }
+
+    /** @test */
+    public function indexOf(): void
+    {
+        $ruleStr = 'foo.bar.indexOf("foo") !== -1';
+        $map = [
+            'foo.bar' => 'string with foo in it',
+        ];
+        $rule = new Rule\Rule($ruleStr,  [], function (string $name) use ($map) {
+            return $map[$name];
+        });
+        $this->assertTrue($rule->isTrue());
+    }
+
+    /** @test */
+    public function inArray(): void
+    {
+        $ruleStr = '"foo" in foo.bar';
+        $map = [
+            'foo.bar' => ['test', 'foo'],
+        ];
+        $rule = new Rule\Rule($ruleStr,  [], function (string $name) use ($map) {
+            return $map[$name];
+        });
+        $this->assertTrue($rule->isTrue());
+    }
+
+    /** @test */
+    public function logicOperators(): void
+    {
+        $ruleStr = 'foo.bar >= 1 && bar.foo >= 1 && foo.bar <= 1 && foo.n === null && foo.s !== null && foo.a1 === [] && foo.a2 !== [] && foo.s === "foo" && foo.bar !== "foo"';
+        $map = [
+            'foo.bar' => 1,
+            'bar.foo' => 2,
+            'foo.n' => null,
+            'foo.a1' => [],
+            'foo.a2' => ['one','two'],
+            'foo.s' => 'foo'
+        ];
+        $rule = new Rule\Rule($ruleStr,  [], function (string $name) use ($map) {
+            return $map[$name];
+        });
+        $this->assertTrue($rule->isTrue());
+    }
+
+    /** @test */
+    public function datesCompare(): void
+    {
+        $ruleStr = 'foo.bar >= "2020-02-01 00:00:00" && foo.bar <= "2020-02-01 23:59:59" && bar.foo >= "2020-02-01 00:00:00" && bar.foo <= "2020-02-01 23:59:59" && foo.bar < "2020-02-01 23:59:59" && bar.foo > "2020-02-01 00:00:00"';
+        $map = [
+            'foo.bar' => '2020-02-01 00:00:00',
+            'bar.foo' => '2020-02-01 23:59:59',
+        ];
+        $rule = new Rule\Rule($ruleStr,  [], function (string $name) use ($map) {
+            return $map[$name];
+        });
+        $this->assertTrue($rule->isTrue());
+    }
 }

@@ -3,3 +3,4 @@
 /coverage.clover
 /.phpunit.result.cache
 /vendor/
+/.idea/
